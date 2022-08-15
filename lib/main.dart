@@ -18,6 +18,9 @@ class MyApp extends StatelessWidget {
         'pago_completo':(context) => PagoCompletoPage(),
       },
       theme: ThemeData.light().copyWith(
+        appBarTheme: AppBarTheme(
+          color: Color(0xff284879)
+        ),
         primaryColor: Color(0xff284879),
         scaffoldBackgroundColor: Color(0xff21232a), 
       ),

@@ -1,6 +1,9 @@
+import 'package:f_stripe_card_pay/src/helpers/helpers.dart';
+import 'package:f_stripe_card_pay/src/pages/pages.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_credit_card/credit_card_widget.dart';
 
+import 'package:f_stripe_card_pay/src/widgets/widgets.dart';
 import 'package:f_stripe_card_pay/src/data/data.dart';
 
 class HomePage extends StatelessWidget {
@@ -13,12 +16,20 @@ class HomePage extends StatelessWidget {
     final size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: const Text( 'Pagar' ),
+        centerTitle: true,
+        title: const Center(child: Text( 'Pagar' )),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: (){
+            onPressed: () async {
 
+              // mostrar el cargando
+              // mostrarLoading(context);
+              // await Future.delayed(Duration(seconds: 1));
+              // Navigator.pop(context); // es lo mismo que Navigator.of(context).pop()
+
+              // cancela la alerta
+              mostrarAlerta(context, 'Hola', 'Mundo');
             },
           )
         ],
@@ -38,20 +49,32 @@ class HomePage extends StatelessWidget {
               itemCount: tarjetas.length,
               itemBuilder: ( _ , int index) {
                 final tarjeta = tarjetas[index];
-                return CreditCardWidget(
-                  cardNumber: tarjeta.cardNumberHidden,
-                  expiryDate: tarjeta.expiracyDate,
-                  cardHolderName: tarjeta.cardHolderName,
-                  isHolderNameVisible: true,
-                  cvvCode: tarjeta.cvv,
-                  showBackView: false, 
-                  onCreditCardWidgetChange: (creditCardBrand) { 
-
-                   },
+                return GestureDetector(
+                  onTap: () {
+                    print('jean: Click Tarjeta de ${tarjeta.cardHolderName}');
+                    Navigator.push(context, navegarFadeIn(context, TarjetaPage())); 
+                  },
+                  child: Hero(
+                    tag: tarjeta.cardNumber,
+                    child: CreditCardWidget(
+                      cardNumber: tarjeta.cardNumberHidden,
+                      expiryDate: tarjeta.expiracyDate,
+                      cardHolderName: tarjeta.cardHolderName,
+                      isHolderNameVisible: true,
+                      cvvCode: tarjeta.cvv,
+                      showBackView: false, 
+                      onCreditCardWidgetChange: (_) {},
+                    ),
+                  ),
                 );
               },
             ),
           ),
+
+          Positioned(
+            bottom: 0,
+            child: TotalPayButton()
+          )
 
         ],
       ),

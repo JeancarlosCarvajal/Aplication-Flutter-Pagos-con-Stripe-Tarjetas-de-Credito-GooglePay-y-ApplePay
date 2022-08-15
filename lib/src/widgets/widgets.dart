@@ -1,0 +1,1 @@
+export 'package:f_stripe_card_pay/src/widgets/total_pay_button.dart';
