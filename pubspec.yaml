@@ -29,12 +29,14 @@ environment:
 dependencies:
   bloc: ^8.1.0
   cupertino_icons: ^1.0.2
+  dio: ^4.0.6
   equatable: ^2.0.3
   flutter:
     sdk: flutter
   flutter_bloc: ^8.1.1
   flutter_credit_card: ^3.0.3
   font_awesome_flutter: ^10.1.0
+  stripe_payment: ^1.1.4
 
 dev_dependencies:
   flutter_lints: ^2.0.0

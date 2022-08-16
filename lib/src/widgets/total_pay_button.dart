@@ -80,7 +80,7 @@ class _BtnPay extends StatelessWidget {
       child: Row(
         children: [
           Icon( 
-            !Platform.isIOS 
+            Platform.isIOS 
               ? FontAwesomeIcons.applePay 
               : FontAwesomeIcons.googlePay, 
             size: 50, 
