@@ -1,4 +1,5 @@
 import 'package:f_stripe_card_pay/src/bloc/pagar/pagar_bloc.dart';
+import 'package:f_stripe_card_pay/src/services/stripe_service.dart';
 import 'package:flutter/material.dart';
 
 import 'package:f_stripe_card_pay/src/pages/pages.dart';
@@ -11,14 +12,20 @@ void main() async {
   // Ensure that the filename corresponds to the path in step 1 and 2.
   await dotenv.load(fileName: ".env");
 
-  runApp(MyApp()); 
+  // inicializamos el stripe service.. opcion 1
+  final stripeService = StripeService();
+  stripeService.init();
+ 
+
+  runApp(const MyApp()); 
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) { 
+
     return MultiBlocProvider(
       providers: [
         BlocProvider( create: ( _ ) => PagarBloc() ), 

@@ -8,6 +8,9 @@ class PagarState extends Equatable {
   final bool tarjetaActiva;
   final TarjetaCredito tarjeta;
 
+  // hacer getter para obtener el monto en el formato requerido por stripe
+  // en stripe se debe manejar sin comas ni puntos.. ejm. 250.55 = 25055
+  String get montoPagarString => '${(montoPagar*100).floor()}';
 
   // aqui el constructor
   PagarState({
@@ -16,7 +19,7 @@ class PagarState extends Equatable {
     bool? tarjetaActiva, 
     TarjetaCredito? tarjeta
   }): montoPagar = 375.5,
-      moneda = 'USD',
+      moneda = 'usd',
       tarjetaActiva = tarjetaActiva ?? false,
       tarjeta = tarjeta ?? TarjetaCredito(); // CSM me tenia 1 hora buscado a solucion pendiente que debe tener el condicional ?? sino el valor que le agrege no se cargara
 

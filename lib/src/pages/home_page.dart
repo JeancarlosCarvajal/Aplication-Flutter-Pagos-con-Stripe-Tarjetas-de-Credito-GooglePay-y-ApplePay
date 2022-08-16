@@ -2,6 +2,7 @@ import 'package:f_stripe_card_pay/src/bloc/pagar/pagar_bloc.dart';
 import 'package:f_stripe_card_pay/src/helpers/helpers.dart';
 import 'package:f_stripe_card_pay/src/models/models.dart';
 import 'package:f_stripe_card_pay/src/pages/pages.dart';
+import 'package:f_stripe_card_pay/src/services/stripe_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_credit_card/credit_card_widget.dart';
@@ -10,8 +11,10 @@ import 'package:f_stripe_card_pay/src/widgets/widgets.dart';
 import 'package:f_stripe_card_pay/src/data/data.dart';
 
 class HomePage extends StatelessWidget {
+
+  final stripeService = new StripeService();
    
-  const HomePage({Key? key}) : super(key: key);
+  HomePage({Key? key}) : super(key: key);
   
   @override
   Widget build(BuildContext context) {
@@ -27,13 +30,25 @@ class HomePage extends StatelessWidget {
             onPressed: () async {
 
               // mostrar el cargando
-              mostrarLoading(context);
-              await Future.delayed(const Duration(seconds: 1));
+              // mostrarLoading(context);
+              // await Future.delayed(const Duration(seconds: 1));
               // cancelar el cargando
-              Navigator.pop(context); // es lo mismo que Navigator.of(context).pop()
-
+              // Navigator.pop(context); // es lo mismo que Navigator.of(context).pop() 
               // Mostrar la alerta personalizada
               // mostrarAlerta(context, 'Hola', 'Mundo');
+
+              final pagarBloc = BlocProvider.of<PagarBloc>(context, listen: false);
+
+              final response = await stripeService.pagarConNuevaTarjeta(
+                amount: pagarBloc.state.montoPagarString, 
+                currency: pagarBloc.state.moneda
+              );
+
+              if( response.ok ) {
+                mostrarAlerta(context, 'Tarjeta Ok', 'Todo correcto');
+              }else{
+                mostrarAlerta(context, 'Algo salio mal', '${response.msg}');
+              }
             },
           )
         ],
