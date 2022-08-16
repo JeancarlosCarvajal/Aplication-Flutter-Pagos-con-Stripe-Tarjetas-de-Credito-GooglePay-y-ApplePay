@@ -11,11 +11,16 @@ class TarjetaCredito {
   final String cardHolderName;
 
   TarjetaCredito({
-    required this.cardNumberHidden,
-    required this.cardNumber,
-    required this.brand,
-    required this.cvv,
-    required this.expiracyDate,
-    required this.cardHolderName
-  });
+    cardNumberHidden,
+    cardNumber,
+    brand,
+    cvv,
+    expiracyDate,
+    cardHolderName
+  }): cardNumberHidden = cardNumberHidden ?? '',
+      cardNumber = cardNumber ?? '',
+      brand = brand ?? '',
+      cvv = cvv ?? '',
+      expiracyDate = expiracyDate ?? '',
+      cardHolderName = cardHolderName ?? '';
 }

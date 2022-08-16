@@ -24,12 +24,13 @@ class HomePage extends StatelessWidget {
             onPressed: () async {
 
               // mostrar el cargando
-              // mostrarLoading(context);
-              // await Future.delayed(Duration(seconds: 1));
-              // Navigator.pop(context); // es lo mismo que Navigator.of(context).pop()
+              mostrarLoading(context);
+              await Future.delayed(const Duration(seconds: 1));
+              // cancelar el cargando
+              Navigator.pop(context); // es lo mismo que Navigator.of(context).pop()
 
-              // cancela la alerta
-              mostrarAlerta(context, 'Hola', 'Mundo');
+              // Mostrar la alerta personalizada
+              // mostrarAlerta(context, 'Hola', 'Mundo');
             },
           )
         ],
