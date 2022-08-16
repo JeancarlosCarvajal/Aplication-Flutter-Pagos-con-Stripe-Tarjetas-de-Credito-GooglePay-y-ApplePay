@@ -1,6 +1,9 @@
+import 'package:f_stripe_card_pay/src/bloc/pagar/pagar_bloc.dart';
 import 'package:f_stripe_card_pay/src/helpers/helpers.dart';
+import 'package:f_stripe_card_pay/src/models/models.dart';
 import 'package:f_stripe_card_pay/src/pages/pages.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_credit_card/credit_card_widget.dart';
 
 import 'package:f_stripe_card_pay/src/widgets/widgets.dart';
@@ -49,12 +52,10 @@ class HomePage extends StatelessWidget {
               physics: const BouncingScrollPhysics(parent: ScrollPhysics()),
               itemCount: tarjetas.length,
               itemBuilder: ( _ , int index) {
+
                 final tarjeta = tarjetas[index];
-                return GestureDetector(
-                  onTap: () {
-                    print('jean: Click Tarjeta de ${tarjeta.cardHolderName}');
-                    Navigator.push(context, navegarFadeIn(context, TarjetaPage())); 
-                  },
+
+                return GestureDetector( 
                   child: Hero(
                     tag: tarjeta.cardNumber,
                     child: CreditCardWidget(
@@ -66,13 +67,23 @@ class HomePage extends StatelessWidget {
                       showBackView: false, 
                       onCreditCardWidgetChange: (_) {},
                     ),
-                  ),
+                  ),                  
+                  onTap: () {
+                    // print('jean: Gestur Tarjeta de ${tarjeta.cardHolderName}');
+                    // accedemos al Bloc
+                    final pagarBloc = BlocProvider.of<PagarBloc>(context); 
+                    // print('jean Avtica Inicial: ${ pagarBloc.state.tarjetaActiva}');
+
+                    pagarBloc.add( OnSelectedTarjeta( tarjeta ) ); 
+                    Navigator.push(context, navegarFadeIn(context, const TarjetaPage()));
+ 
+                  },
                 );
               },
             ),
           ),
 
-          Positioned(
+          const Positioned(
             bottom: 0,
             child: TotalPayButton()
           )

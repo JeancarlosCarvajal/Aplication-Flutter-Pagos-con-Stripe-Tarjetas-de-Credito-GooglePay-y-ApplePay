@@ -17,10 +17,10 @@ class TarjetaCredito {
     cvv,
     expiracyDate,
     cardHolderName
-  }): cardNumberHidden = cardNumberHidden ?? '',
-      cardNumber = cardNumber ?? '',
-      brand = brand ?? '',
-      cvv = cvv ?? '',
-      expiracyDate = expiracyDate ?? '',
-      cardHolderName = cardHolderName ?? '';
+  }): cardNumberHidden = cardNumberHidden ?? '000',
+      cardNumber = cardNumber ?? '000000000000',
+      brand = brand ?? 'brand',
+      cvv = cvv ?? '000',
+      expiracyDate = expiracyDate ?? '0/0',
+      cardHolderName = cardHolderName ?? 'xxx';
 }

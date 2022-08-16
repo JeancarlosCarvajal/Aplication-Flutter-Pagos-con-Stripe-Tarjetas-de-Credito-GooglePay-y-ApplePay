@@ -1,4 +1,6 @@
+import 'package:f_stripe_card_pay/src/bloc/pagar/pagar_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:io';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -32,10 +34,9 @@ class TotalPayButton extends StatelessWidget {
               Text( '250,55 USD', style: TextStyle(fontSize: 20) )
             ],
           ),
-
+          
           _BtnPay(),
-
-
+ 
         ],
       ),
     );
@@ -43,10 +44,11 @@ class TotalPayButton extends StatelessWidget {
 }
 
 class _BtnPay extends StatelessWidget {
-  
   @override
   Widget build(BuildContext context) {
-    return false
+  final pagarBloc = BlocProvider.of<PagarBloc>(context);
+    // print('jean Avtica: ${pagarBloc.state.tarjetaActiva}');
+    return pagarBloc.state.tarjetaActiva
       ? buildBotonTarjeta(context)
       : buildAppleAndGooglePay(context);
   }
