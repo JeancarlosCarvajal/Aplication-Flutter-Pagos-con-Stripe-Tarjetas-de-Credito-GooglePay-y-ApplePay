@@ -71,7 +71,7 @@ class StripeService {
   }) async {
     try { 
       // propio del paquete
-      final paymentMetrod = await StripePayment.paymentRequestWithCardForm(
+      final paymentMethod = await StripePayment.paymentRequestWithCardForm(
         CardFormPaymentRequest()
       );
 
@@ -79,7 +79,7 @@ class StripeService {
       final resp = await _realizarPago(
         amount: amount, 
         currency: currency, 
-        paymentMethod: paymentMetrod
+        paymentMethod: paymentMethod
       );
  
       return resp;
@@ -89,10 +89,53 @@ class StripeService {
     }
   }  
 
-  Future pagarConApplePayGooglePay({
+  Future<StripeCustomResponse> pagarConApplePayGooglePay({
     required String amount,
-    required String currency,
+    required String currency, 
   }) async{
+
+    // try {
+      // concertir el formato del monto
+      final newAmount = (double.parse(amount)/100).toString(); 
+      // generar el token es propio del paquete
+      final token = await StripePayment.paymentRequestWithNativePay(
+        androidPayOptions: AndroidPayPaymentRequest(currencyCode: currency, totalPrice: newAmount), 
+        applePayOptions: ApplePayPaymentOptions(
+          countryCode: 'US', 
+          currencyCode: currency, 
+          items: [
+            ApplePayItem(
+              label: 'Super producto 1',
+              amount: newAmount
+            )
+          ]
+        )
+      ); 
+
+      final paymentMethod = await StripePayment.createPaymentMethod(
+        PaymentMethodRequest(
+          card: CreditCard(
+            token: token.tokenId
+          ) 
+        )
+      );
+
+      // realizamos el pago. aqui esta el Payment Intent, confirmar el cobro
+      final resp = await _realizarPago(
+        amount: amount, 
+        currency: currency, 
+        paymentMethod: paymentMethod
+      );
+
+      // cerrar lapantalla al tener la respuesta
+      await StripePayment.completeNativePayRequest();
+ 
+      return resp;
+       
+    // } catch (e) {
+    //   print('jean: Error GooglePay o ApplePay ${e.toString()}');
+    //   return StripeCustomResponse(ok: false, msg: e.toString());
+    // }
     
   }
 
@@ -100,6 +143,7 @@ class StripeService {
     required String amount,
     required String currency, 
   }) async {
+
     try {
 
       final dio = new Dio();

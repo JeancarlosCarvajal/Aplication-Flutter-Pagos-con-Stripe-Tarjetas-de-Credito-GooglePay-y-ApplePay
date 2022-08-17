@@ -1,5 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.f_stripe_card_pay">
+    
+        <!-- Internet Permission -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    
    <application
         android:label="f_stripe_card_pay"
         android:name="${applicationName}"
