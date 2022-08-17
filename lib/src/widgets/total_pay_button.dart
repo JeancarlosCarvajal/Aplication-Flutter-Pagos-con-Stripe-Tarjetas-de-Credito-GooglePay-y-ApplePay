@@ -3,9 +3,10 @@ import 'package:f_stripe_card_pay/src/helpers/helpers.dart';
 import 'package:f_stripe_card_pay/src/services/stripe_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'dart:io';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:stripe_payment/stripe_payment.dart';
+// import 'package:stripe_payment/stripe_payment.dart';
 
 
 class TotalPayButton extends StatelessWidget {
@@ -84,12 +85,14 @@ class _BtnPay extends StatelessWidget {
         // print('jean boton pagar: ${tarjeta.cardHolderName}');
 
         final response = await stripeService.pagarConTarjetaExistente(
+          name: pagarState.tarjeta.cardHolderName,
           amount: pagarState.montoPagarString, 
           currency: pagarState.moneda, 
-          card: CreditCard(
+          cardDetails: CardDetails(
             number: tarjeta.cardNumber,
-            expMonth: int.parse(mesAnio[0]),
-            expYear: int.parse(mesAnio[1])
+            expirationMonth: int.parse(mesAnio[0]),
+            expirationYear: int.parse(mesAnio[1]),
+            cvc: tarjeta.cvv
           )
         );
 
