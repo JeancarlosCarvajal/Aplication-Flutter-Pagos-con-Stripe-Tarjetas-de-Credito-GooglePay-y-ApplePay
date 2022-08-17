@@ -1,6 +1,5 @@
 import 'package:f_stripe_card_pay/src/bloc/pagar/pagar_bloc.dart';
-import 'package:f_stripe_card_pay/src/helpers/helpers.dart';
-import 'package:f_stripe_card_pay/src/models/models.dart';
+import 'package:f_stripe_card_pay/src/helpers/helpers.dart'; 
 import 'package:f_stripe_card_pay/src/pages/pages.dart';
 import 'package:f_stripe_card_pay/src/services/stripe_service.dart';
 import 'package:flutter/material.dart';
@@ -30,10 +29,9 @@ class HomePage extends StatelessWidget {
             onPressed: () async {
 
               // mostrar el cargando
-              // mostrarLoading(context);
+              mostrarLoading(context);
+
               // await Future.delayed(const Duration(seconds: 1));
-              // cancelar el cargando
-              // Navigator.pop(context); // es lo mismo que Navigator.of(context).pop() 
               // Mostrar la alerta personalizada
               // mostrarAlerta(context, 'Hola', 'Mundo');
 
@@ -44,11 +42,15 @@ class HomePage extends StatelessWidget {
                 currency: pagarBloc.state.moneda
               );
 
+              // cancelar el cargando
+              Navigator.pop(context); // es lo mismo que Navigator.of(context).pop() 
+
               if( response.ok ) {
-                mostrarAlerta(context, 'Tarjeta Ok', 'Todo correcto');
+                mostrarAlerta(context, 'Pago exitoso', 'Estimad@ ${pagarBloc.state.tarjeta.cardHolderName} Su pago ha sido procesado con exito');
               }else{
                 mostrarAlerta(context, 'Algo salio mal', '${response.msg}');
               }
+
             },
           )
         ],
@@ -74,7 +76,7 @@ class HomePage extends StatelessWidget {
                   child: Hero(
                     tag: tarjeta.cardNumber,
                     child: CreditCardWidget(
-                      cardNumber: tarjeta.cardNumberHidden,
+                      cardNumber: tarjeta.cardNumber,
                       expiryDate: tarjeta.expiracyDate,
                       cardHolderName: tarjeta.cardHolderName,
                       isHolderNameVisible: true,

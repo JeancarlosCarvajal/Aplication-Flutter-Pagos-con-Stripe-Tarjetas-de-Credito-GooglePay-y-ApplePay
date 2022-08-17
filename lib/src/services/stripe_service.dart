@@ -38,26 +38,32 @@ class StripeService {
     );
   }
 
-  // Future<StripeCustomResponse> pagarConTarjetaExistente({
-  //   required String amount, 
-  //   required String currency,
-  //   required CreditCard card
-  // }) async {
+  Future pagarConTarjetaExistente({
+    required String amount, 
+    required String currency,
+    required CreditCard card
+  }) async {
 
-  //   try { 
-  //     // propio del paquete
-  //     final paymentMetrod = await StripePayment.paymentRequestWithCardForm(
-  //       CardFormPaymentRequest()
-  //     );
+    try { 
+      // propio del paquete
+      final paymentMetrod = await StripePayment.createPaymentMethod(
+        PaymentMethodRequest(card: card)
+      );
+
+      // realizamos el pago. aqui esta el Payment Intent, confirmar el cobro
+      final resp = await _realizarPago(
+        amount: amount, 
+        currency: currency, 
+        paymentMethod: paymentMetrod
+      );
  
+      return resp;
+      
+    } catch (e) {
+      return StripeCustomResponse(ok: false, msg: e.toString());
+    }
 
-
-  //     return StripeCustomResponse(ok: true); 
-  //   } catch (e) {
-  //     return StripeCustomResponse(ok: false, msg: e.toString());
-  //   }
-
-  // }
+  }
 
   Future<StripeCustomResponse> pagarConNuevaTarjeta({
     required String amount,
@@ -69,10 +75,14 @@ class StripeService {
         CardFormPaymentRequest()
       );
 
-      //  crear el intent
-      final resp = await _crearPaymentIntent(amount: amount, currency: currency);
-
-      return StripeCustomResponse(ok: true);
+      // realizamos el pago. aqui esta el Payment Intent, confirmar el cobro
+      final resp = await _realizarPago(
+        amount: amount, 
+        currency: currency, 
+        paymentMethod: paymentMetrod
+      );
+ 
+      return resp;
       
     } catch (e) {
       return StripeCustomResponse(ok: false, msg: e.toString());
@@ -86,16 +96,16 @@ class StripeService {
     
   }
 
-  Future _crearPaymentIntent({
+  Future<PaymentIntentResponse> _crearPaymentIntent({
     required String amount,
-    required String currency,
+    required String currency, 
   }) async {
     try {
 
       final dio = new Dio();
       final data = {
         'amount': amount,
-        'currency': currency
+        'currency': currency,
       };
 
       final resp = await dio.post(
@@ -109,23 +119,42 @@ class StripeService {
       // return PaymentIntentResponse.fromJson(resp.data);
       if(resp.statusCode == 200){
         print('jean: 200'); 
-        final data = PaymentIntentResponse.fromMap(resp.data); 
-        return data;
+        return PaymentIntentResponse.fromMap(resp.data);
       }else{
-        return false; 
+        return PaymentIntentResponse(status: '400'); 
       }
     } catch (e) {
       print('jean: Error Intento ${e.toString()}');
-      return false;
+      return PaymentIntentResponse(status: '400');
     }
   }
 
-  Future _realizarPago({
+  Future<StripeCustomResponse> _realizarPago({
     required String amount,
     required String currency,
-    required PaymentMethod paymentMethod,
+    required PaymentMethod paymentMethod, // esto ta informacion viene del Paquete de Stripe OJOJOJOJJ
   }) async {
     
+    try {
+      //  crear Payment intent.. 1 conecta API
+      final paymentIntent = await _crearPaymentIntent(amount: amount, currency: currency);
+
+      // confirmar el pago.. 2 conecta API
+      final paymentResult = await StripePayment.confirmPaymentIntent(
+        PaymentIntent(
+          clientSecret: paymentIntent.clientSecret, // esta informacion viene de respuesta del Payment Intent
+          paymentMethodId: paymentMethod.id
+        )
+      );
+
+      return paymentResult.status == 'succeeded'
+        ? StripeCustomResponse(ok: true)
+        : StripeCustomResponse(ok: false, msg: 'Fallo: ${paymentResult.status}');
+ 
+    } catch (e) {
+      return StripeCustomResponse(ok: false, msg: e.toString());
+    }
+ 
   }
 
 

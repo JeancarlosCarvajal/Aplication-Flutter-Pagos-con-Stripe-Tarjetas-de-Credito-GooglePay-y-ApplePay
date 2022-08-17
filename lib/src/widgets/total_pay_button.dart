@@ -1,8 +1,11 @@
 import 'package:f_stripe_card_pay/src/bloc/pagar/pagar_bloc.dart';
+import 'package:f_stripe_card_pay/src/helpers/helpers.dart';
+import 'package:f_stripe_card_pay/src/services/stripe_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:io';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:stripe_payment/stripe_payment.dart';
 
 
 class TotalPayButton extends StatelessWidget {
@@ -12,6 +15,8 @@ class TotalPayButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final pagarBloc = BlocProvider.of<PagarBloc>(context);
+    final dataPay = pagarBloc.state;
     return Container(
       width: size.width,
       height: 100,
@@ -30,12 +35,12 @@ class TotalPayButton extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text( 'Total', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold) ),
-              Text( '250,55 USD', style: TextStyle(fontSize: 20) )
+              const Text( 'Total', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold) ),
+              Text(  '${dataPay.montoPagar} ${dataPay.moneda.toUpperCase()}', style: const TextStyle(fontSize: 20) )
             ],
           ),
           
-          _BtnPay(),
+          _BtnPay(pagarState: pagarBloc.state),
  
         ],
       ),
@@ -44,11 +49,15 @@ class TotalPayButton extends StatelessWidget {
 }
 
 class _BtnPay extends StatelessWidget {
+  final PagarState pagarState; 
+  const _BtnPay({ 
+    required this.pagarState
+  });
+
   @override
-  Widget build(BuildContext context) {
-  final pagarBloc = BlocProvider.of<PagarBloc>(context);
+  Widget build(BuildContext context) { 
     // print('jean Avtica: ${pagarBloc.state.tarjetaActiva}');
-    return pagarBloc.state.tarjetaActiva
+    return pagarState.tarjetaActiva
       ? buildBotonTarjeta(context)
       : buildAppleAndGooglePay(context);
   }
@@ -61,13 +70,40 @@ class _BtnPay extends StatelessWidget {
       elevation: 0,
       color: Colors.black,
       child: Row(
-        children: [
+        children: const [
           Icon( FontAwesomeIcons.solidCreditCard, color: Colors.white ),
           Text( '   Pagar', style: TextStyle(color: Colors.white, fontSize: 22, fontStyle: FontStyle.italic) ),
         ],
       ),
-      onPressed: (){});
+      onPressed: () async {
+        // mostrar el cargando
+        mostrarLoading(context);
+        final stripeService = new StripeService();
+        final tarjeta = pagarState.tarjeta;
+        final mesAnio = tarjeta.expiracyDate.split('/');
+        // print('jean boton pagar: ${tarjeta.cardHolderName}');
 
+        final response = await stripeService.pagarConTarjetaExistente(
+          amount: pagarState.montoPagarString, 
+          currency: pagarState.moneda, 
+          card: CreditCard(
+            number: tarjeta.cardNumber,
+            expMonth: int.parse(mesAnio[0]),
+            expYear: int.parse(mesAnio[1])
+          )
+        );
+
+        // cancelar el cargando
+        Navigator.pop(context); // es lo mismo que Navigator.of(context).pop() 
+
+        if( response.ok ) {
+          mostrarAlerta(context, 'Pago exitoso', 'Estimad@ ${pagarState.tarjeta.cardHolderName} su pago ha sido procesado con exito');
+        }else{
+          mostrarAlerta(context, 'Algo salio mal', '${response.msg}');
+        }
+
+      }
+    );
   }
 
   Widget buildAppleAndGooglePay(BuildContext context) {

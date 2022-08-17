@@ -1,6 +1,5 @@
 
-import 'package:f_stripe_card_pay/src/bloc/pagar/pagar_bloc.dart';
-import 'package:f_stripe_card_pay/src/models/models.dart';
+import 'package:f_stripe_card_pay/src/bloc/pagar/pagar_bloc.dart'; 
 import 'package:f_stripe_card_pay/src/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -52,7 +51,7 @@ class TarjetaPage extends StatelessWidget {
           Hero(
             tag: tarjeta.cardNumber,
             child: CreditCardWidget(
-              cardNumber: tarjeta.cardNumberHidden,
+              cardNumber: tarjeta.cardNumber,
               expiryDate: tarjeta.expiracyDate,
               cardHolderName: tarjeta.cardHolderName,
               isHolderNameVisible: true,

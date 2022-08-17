@@ -18,7 +18,7 @@ class PagarState extends Equatable {
     moneda, 
     bool? tarjetaActiva, 
     TarjetaCredito? tarjeta
-  }): montoPagar = 375.5,
+  }): montoPagar = 285.9,
       moneda = 'usd',
       tarjetaActiva = tarjetaActiva ?? false,
       tarjeta = tarjeta ?? TarjetaCredito(); // CSM me tenia 1 hora buscado a solucion pendiente que debe tener el condicional ?? sino el valor que le agrege no se cargara
