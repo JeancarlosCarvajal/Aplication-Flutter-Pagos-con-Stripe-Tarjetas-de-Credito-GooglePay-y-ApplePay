@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:f_stripe_card_pay/src/pages/pages.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
+// import 'package:flutter_stripe/flutter_stripe.dart';
 
 void main() async {
 
@@ -14,13 +14,11 @@ void main() async {
   // Ensure that the filename corresponds to the path in step 1 and 2.
   await dotenv.load(fileName: ".env");
 
-
-
   // inicializamos el stripe service.. opcion 2
   final stripeService = StripeService();
   stripeService.init();
   
-  runApp(const MyApp()); 
+  runApp(MyApp()); 
 
 }
 
@@ -53,3 +51,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+

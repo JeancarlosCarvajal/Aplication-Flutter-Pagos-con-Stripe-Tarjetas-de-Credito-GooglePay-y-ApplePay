@@ -37,19 +37,21 @@ class HomePage extends StatelessWidget {
 
               final pagarBloc = BlocProvider.of<PagarBloc>(context, listen: false);
 
-              final response = await stripeService.pagarConNuevaTarjeta(
-                amount: pagarBloc.state.montoPagarString, 
-                currency: pagarBloc.state.moneda
-              );
+              // final response = await stripeService.pagarConNuevaTarjeta(
+              //   amount: pagarBloc.state.montoPagarString, 
+              //   currency: pagarBloc.state.moneda
+              // );
+              // final response = await stripeService.createCustomer();
 
               // cancelar el cargando
               Navigator.pop(context); // es lo mismo que Navigator.of(context).pop() 
 
-              if( response.ok ) {
-                mostrarAlerta(context, 'Pago exitoso', 'Estimad@ ${pagarBloc.state.tarjeta.cardHolderName} Su pago ha sido procesado con exito');
-              }else{
-                mostrarAlerta(context, 'Algo salio mal', '${response.msg}');
-              }
+              // if( response.ok ) {
+              //   // mostrarAlerta(context, 'Pago exitoso', 'Estimad@ ${pagarBloc.state.tarjeta.cardHolderName} Su pago ha sido procesado con exito');
+              //   mostrarAlerta(context, 'Pago exitoso', 'Estimad@ ${pagarBloc.state.tarjeta.cardHolderName} ${response.msg}');
+              // }else{
+              //   mostrarAlerta(context, 'Algo salio mal', '${response.msg}');
+              // }
 
             },
           )

@@ -1,11 +1,16 @@
  
 
 import 'package:dio/dio.dart';
+import 'package:f_stripe_card_pay/src/models/models.dart';
+import 'package:f_stripe_card_pay/src/models/models.dart';
+import 'dart:convert';
+
 import 'package:f_stripe_card_pay/src/models/payment_intent_response.dart';
 import 'package:f_stripe_card_pay/src/models/stripe_custom_response.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:http/http.dart' as http;
 // import 'package:stripe_payment/stripe_payment.dart';
 
 class StripeService {
@@ -16,40 +21,99 @@ class StripeService {
   factory StripeService() => _instance; 
 
   final String _paymentApiUrl = 'https://api.stripe.com/v1/payment_intents';
+  final String _customerApiUrl = 'https://api.stripe.com/v1/customers';
+
+
+  final client = http.Client();
+
   // clave secreta
   // coloque estatico para poder usarlo en los header del options
   static final _secretKey = dotenv.env['STRIPE_SECRET_KEY'];
   final _apiKey = dotenv.env['STRIPE_PUBLIC_KEY']; 
+  
   // header options
-  final headerOptions = Options(
-    contentType: Headers.formUrlEncodedContentType,
-    headers: {
-      'Authorization': 'Bearer ${ StripeService._secretKey }'
-    }
-  );
+  final headers  = {
+    'Authorization': 'Bearer $_secretKey',
+    'Content-Type': 'application/x-www-form-urlencoded',
+    // 'Content-Type': 'from-data', // para pruebas de respuesta 400 bad request
+  };
 
-  void init() async {
+  // the first.._createCustomer().. step is to create a customer, which means registering a user in stripe. 
+  // The second step.._crearPaymentIntent().. is to create a payment intent, where the amount to be paid is specified. 
+  // The third step is to enter the credit card information and complete the payment
 
-    // propio del paquete
-    // Stripe.instance.setOptions(
-    //   StripeOptions(
-    //     publishableKey: this._apiKey,
-    //     androidPayMode: 'test',
-    //     merchantId: "Test", // lo vamos a tener cuando se tiene el panel configurado de la cuenta de verdad
-    //   )
-    // );
-
+  void init() async { 
     // inicializando stripe paquete
     WidgetsFlutterBinding.ensureInitialized(); 
-    // set the publishable key for Stripe - this is mandatory
-    final apiKey = dotenv.env['STRIPE_PUBLIC_KEY'];  
-    print('jean: $apiKey'); 
-    Stripe.publishableKey = apiKey!; 
-    // Stripe.merchantIdentifier = 'com.example.f_stripe_card_pay';
-    // Stripe.urlScheme = 'flutterstripe';
-    // await Stripe.instance.applySettings();
+    // set the publishable key for Stripe - this is mandatory 
+    // print('jean: $_apiKey'); 
+    Stripe.publishableKey = _apiKey!; 
+  }
+
+  // de aqui usare el CreateCustomerResponse.id
+  Future<CreateCustomerResponse> _createCustomer() async {
+    try { 
+      var response = await client.post( Uri.parse(_customerApiUrl),
+        headers: headers,
+        body: {
+          'description': 'new customer'
+        },
+      ); 
+      return response.statusCode == 200
+        ? CreateCustomerResponse.fromJson(response.body)
+        : CreateCustomerResponse(id: 'false');  
+    } catch (e) {
+        return CreateCustomerResponse(id: 'false'); 
+    }
+  }
+
+  // de aqui usare el PaymentIntentResponse.clientSecret
+  Future<PaymentIntentResponse> _crearPaymentIntent({
+    required String amount,
+    required String currency, 
+  }) async {
+    try { 
+      var response = await client.post( Uri.parse(_paymentApiUrl),
+        headers: headers,
+        body: {
+          'amount': amount,
+          'currency': currency,
+        },
+      ); 
+      return response.statusCode == 200
+        ? PaymentIntentResponse.fromJson(response.body)
+        : PaymentIntentResponse(status: '400'); 
+    } catch (e) { 
+      print('jean: Error Intento ${e.toString()}');
+      return PaymentIntentResponse(status: '400');
+    } 
+  }
+
+  Future<void> _createCreditCard(String customerId, String clientSecret) async { 
+    await Stripe.instance.initPaymentSheet(
+      paymentSheetParameters: SetupPaymentSheetParameters(
+        // applePay: const PaymentSheetApplePay(merchantCountryCode: 'us'),
+        // googlePay: const PaymentSheetGooglePay(merchantCountryCode: 'us'),
+        style: ThemeMode.dark,
+        // testEnv: true,
+        // merchantCountryCode: 'JP',
+        merchantDisplayName: 'Flutter Stripe Store Demo',
+        customerId: customerId,
+        paymentIntentClientSecret: clientSecret,
+      )
+    );
+    await Stripe.instance.presentPaymentSheet();
+    print('jean: test');
     
   }
+
+  Future<void> payment({required String amount, required String currency}) async { 
+    final customer = await _createCustomer();
+    final paymentIntent = await _crearPaymentIntent(amount: amount, currency: currency);
+    await _createCreditCard(customer.id, paymentIntent.clientSecret);
+  }
+
+
 
   Future pagarConTarjetaExistente({
     required String name,
@@ -73,16 +137,8 @@ class StripeService {
           postalCode: '77063',
         )
       );
-
-      // 1 propio del paquete
-      final paymentMethod = await Stripe.instance.createPaymentMethod(
-        PaymentMethodParams.card(
-          paymentMethodData: PaymentMethodData(
-
-          )
-        )
-      ); 
-
+ 
+ 
       // final paymentMetrod = await Stripe.instance.createPaymentMethod(
       //   const PaymentMethodParams.card(
       //     paymentMethodData: PaymentMethodData(
@@ -90,17 +146,7 @@ class StripeService {
       //     )
       //   )
       // );
-
-
-      // realizamos el pago. aqui esta el Payment Intent, confirmar el cobro
-      final resp = await _realizarPago(
-        amount: amount, 
-        currency: currency, 
-        paymentMethod: paymentMethod
-      );
  
-      return resp;
-      
     // } catch (e) {
     //   return StripeCustomResponse(ok: false, msg: e.toString());
     // }
@@ -117,12 +163,10 @@ class StripeService {
       //   CardFormPaymentRequest()
       // );
       // 1 propio del paquete
-      final paymentMethod = await Stripe.instance.createPaymentMethod(
+      final paymentMethod = await Stripe.instance.createPaymentMethod( 
         PaymentMethodParams.card(
-          paymentMethodData: PaymentMethodData(
-
-          )
-        )
+          paymentMethodData: PaymentMethodData( )
+        ),  
       ); 
       // realizamos el pago. aqui esta el Payment Intent, confirmar el cobro
       final resp = await _realizarPago(
@@ -188,39 +232,7 @@ class StripeService {
     
   }
 
-  Future<PaymentIntentResponse> _crearPaymentIntent({
-    required String amount,
-    required String currency, 
-  }) async {
 
-    // try {
-
-      final dio = new Dio();
-      final data = {
-        'amount': amount,
-        'currency': currency,
-      };
-
-      final resp = await dio.post(
-        _paymentApiUrl,
-        data: data,
-        options: headerOptions
-      );
-
-      // en DIO cualquier estatus diferente al 200 y pico no va pasar y entra en el catch
-      // este metodo lo creamos en quicktipe io PaymentIntentResponse
-      // return PaymentIntentResponse.fromJson(resp.data);
-      if(resp.statusCode == 200){
-        print('jean: 200'); 
-        return PaymentIntentResponse.fromMap(resp.data);
-      }else{
-        return PaymentIntentResponse(status: '400'); 
-      }
-    // } catch (e) {
-    //   print('jean: Error Intento ${e.toString()}');
-    //   return PaymentIntentResponse(status: '400');
-    // }
-  }
 
   Future<dynamic> _realizarPago({
     required String amount,

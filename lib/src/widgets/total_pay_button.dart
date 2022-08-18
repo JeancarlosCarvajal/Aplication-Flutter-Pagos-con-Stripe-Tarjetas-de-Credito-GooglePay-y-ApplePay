@@ -84,26 +84,32 @@ class _BtnPay extends StatelessWidget {
         final mesAnio = tarjeta.expiracyDate.split('/');
         // print('jean boton pagar: ${tarjeta.cardHolderName}');
 
-        final response = await stripeService.pagarConTarjetaExistente(
-          name: pagarState.tarjeta.cardHolderName,
-          amount: pagarState.montoPagarString, 
-          currency: pagarState.moneda, 
-          cardDetails: CardDetails(
-            number: tarjeta.cardNumber,
-            expirationMonth: int.parse(mesAnio[0]),
-            expirationYear: int.parse(mesAnio[1]),
-            cvc: tarjeta.cvv
-          )
-        );
+        // final response = await stripeService.pagarConTarjetaExistente(
+        //   name: pagarState.tarjeta.cardHolderName,
+        //   amount: pagarState.montoPagarString, 
+        //   currency: pagarState.moneda, 
+        //   cardDetails: CardDetails(
+        //     number: tarjeta.cardNumber,
+        //     expirationMonth: int.parse(mesAnio[0]),
+        //     expirationYear: int.parse(mesAnio[1]),
+        //     cvc: tarjeta.cvv
+        //   )
+        // );
+        // stripeService.createCustomer();
+        final pagarBloc = BlocProvider.of<PagarBloc>(context, listen: false);
 
+        final response = await stripeService.payment(
+          amount: pagarState.montoPagarString, 
+          currency: pagarState.moneda
+        );
         // cancelar el cargando
         Navigator.pop(context); // es lo mismo que Navigator.of(context).pop() 
 
-        if( response.ok ) {
-          mostrarAlerta(context, 'Pago exitoso', 'Estimad@ ${pagarState.tarjeta.cardHolderName} su pago ha sido procesado con exito');
-        }else{
-          mostrarAlerta(context, 'Algo salio mal', '${response.msg}');
-        }
+        // if( response.ok ) {
+        //   mostrarAlerta(context, 'Pago exitoso', 'Estimad@ ${pagarState.tarjeta.cardHolderName} su pago ha sido procesado con exito');
+        // }else{
+        //   mostrarAlerta(context, 'Algo salio mal', '${response.msg}');
+        // }
 
       }
     );
