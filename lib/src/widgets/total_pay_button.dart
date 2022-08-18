@@ -102,14 +102,15 @@ class _BtnPay extends StatelessWidget {
           amount: pagarState.montoPagarString, 
           currency: pagarState.moneda
         );
+        
         // cancelar el cargando
         Navigator.pop(context); // es lo mismo que Navigator.of(context).pop() 
 
-        // if( response.ok ) {
-        //   mostrarAlerta(context, 'Pago exitoso', 'Estimad@ ${pagarState.tarjeta.cardHolderName} su pago ha sido procesado con exito');
-        // }else{
-        //   mostrarAlerta(context, 'Algo salio mal', '${response.msg}');
-        // }
+        if( response.ok ) {
+          mostrarAlerta(context, 'Pago exitoso', 'Estimad@ ${pagarState.tarjeta.cardHolderName} su pago ha sido procesado con exito');
+        }else{
+          mostrarAlerta(context, 'Algo salio mal', '${response.msg}');
+        }
 
       }
     );

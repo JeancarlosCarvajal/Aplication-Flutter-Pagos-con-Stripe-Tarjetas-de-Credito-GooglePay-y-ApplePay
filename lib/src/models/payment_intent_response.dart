@@ -57,7 +57,7 @@ class PaymentIntentResponse {
         clientSecret = clientSecret ?? '', 
         confirmationMethod = confirmationMethod ?? '', 
         created = created ?? 0, 
-        currency = currency ?? currency, 
+        currency = currency ?? '', 
         livemode = livemode ?? false, 
         metadata = metadata ?? Metadata(), 
         paymentMethodOptions = paymentMethodOptions ?? PaymentMethodOptions(card: Card(requestThreeDSecure: '')), 

@@ -4,6 +4,8 @@
 
 import 'dart:convert';
 
+import 'package:f_stripe_card_pay/src/models/models.dart';
+
 class CreateCustomerResponse {
     CreateCustomerResponse({
          id,
@@ -29,16 +31,16 @@ class CreateCustomerResponse {
          taxExempt,
         this.testClock, 
     }): 
-        id = id ?? '1', 
+        id = id ?? '', 
         object = object ?? '{}', 
         balance = balance ?? 0, 
         created = created ?? 0, 
         delinquent = delinquent ?? false, 
         description = description ?? '', 
         invoicePrefix = invoicePrefix ?? '', 
-        invoiceSettings = invoiceSettings ?? '', 
-        livemode = livemode ?? '', 
-        metadata = metadata ?? '', 
+        invoiceSettings = invoiceSettings ?? InvoiceSettings(), 
+        livemode = livemode ?? false, 
+        metadata = metadata ?? MetadataCustomer(), 
         nextInvoiceSequence = nextInvoiceSequence ?? 0, 
         preferredLocales = preferredLocales ?? [], 
         taxExempt = taxExempt ?? '';
