@@ -1,16 +1,10 @@
-# f_stripe_card_pay
+# maps_app
 
-A new Flutter project.
+Aplicacion de muestra para pagos con Stripe tarjetas de credito
 
-## Getting Started
+## Applicaction Appearance 
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+![Appearance](appearance/1.png)
+![Appearance](appearance/2.png)
+![Appearance](appearance/3.png)
+![Appearance](appearance/4.png)
